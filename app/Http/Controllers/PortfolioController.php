@@ -15,8 +15,11 @@ class PortfolioController extends Controller
             'tags'        => ['Laravel', 'AI', 'Dashboard', 'SaaS'],
             'problem'     => 'الشركات بتواجه صعوبة في فهم البيانات الكبيرة وتحليلها بسرعة، والطرق التقليدية بتاخد وقت طويل ومش دقيقة',
             'solution'    => 'بنينا نظام ذكي بيحلل البيانات أوتوماتيك ويديك رؤى واضحة في ثواني. النظام بيتعلم من سلوك المستخدمين وبيقترح أفضل القرارات',
-            'features'    => ['تحليل بيانات فوري باستخدام AI', 'تقارير تفاعلية وقابلة للتخصيص', 'تنبيهات ذكية لأي تغييرات مهمة', 'دمج سهل مع أي نظام موجود', 'لوحة تحكم مرنة وسهلة الاستخدام'],
+            'features'    => ['تحليل بيانات فوري باستخدام AI', 'تقارير تفاعلية وقابلة للتخصيص', 'تنبيهات ذكية لأي تغييرات مهمة', 'دمج سهل مع أي نظام موجود', 'لوحة تحكم مرنة وسهولة الاستخدام'],
             'techStack'   => ['Laravel 11', 'Vue.js', 'Python ML', 'PostgreSQL', 'Redis', 'TailwindCSS'],
+            'demoUrl'     => 'https://ai-dashboard.demo.com',
+            'github_url'  => 'https://github.com/example/ai-dashboard',
+            'cover_image' => 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
             'screenshots' => [],
         ],
         [
@@ -30,6 +33,8 @@ class PortfolioController extends Controller
             'features'    => ['إدارة منتجات ومخزون ذكية', 'نظام دفع آمن متعدد البوابات', 'تتبع الطلبات والشحن', 'تقارير مبيعات تفصيلية', 'متجاوب مع كل الشاشات'],
             'techStack'   => ['Laravel', 'React', 'Stripe', 'MySQL', 'Livewire', 'Alpine.js'],
             'demoUrl'     => 'https://demo.example.com',
+            'github_url'  => 'https://github.com/example/ecommerce-platform',
+            'cover_image' => 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2070&auto=format&fit=crop',
             'screenshots' => [],
         ],
         [
@@ -42,6 +47,9 @@ class PortfolioController extends Controller
             'solution'    => 'نظام سهل بيخليك تربط أي أداة بأي أداة وتعمل أتمتة لأي مهمة متكررة بدون كود',
             'features'    => ['ربط تلقائي لأكثر من 100 أداة', 'واجهة سحب وإفلات لبناء الأتمتة', 'تنفيذ فوري للمهام', 'سجل كامل لكل العمليات', 'Webhooks و API قوية'],
             'techStack'   => ['Laravel', 'Inertia.js', 'React', 'Queue Jobs', 'Redis', 'Webhooks'],
+            'demoUrl'     => 'https://task-automation.demo.com',
+            'github_url'  => 'https://github.com/example/task-automation',
+            'cover_image' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop',
             'screenshots' => [],
         ],
     ];
@@ -202,6 +210,25 @@ class PortfolioController extends Controller
     {
         $project = collect($this->projects)->firstWhere('id', $id);
         if (!$project) abort(404);
+        
+        // Convert techStack array to objects for view compatibility
+        $project['technologies'] = collect($project['techStack'] ?? [])->map(function($tech) {
+            return (object) ['name' => $tech];
+        });
+        
+        // Add images collection (use cover_image + 2 placeholder images)
+        $project['images'] = collect([
+            $project['cover_image'] ?? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop'
+        ]);
+        
+        // Add files collection
+        $project['files'] = collect([
+            (object) ['name' => 'SRS Document', 'url' => '/files/' . $id . '-srs.pdf'],
+            (object) ['name' => 'Source Code', 'url' => $project['github_url'] . '/archive/main.zip']
+        ]);
+        
         return view('projects.show', ['project' => $project]);
     }
 
